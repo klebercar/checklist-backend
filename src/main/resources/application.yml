@@ -1,0 +1,31 @@
+server:
+  port: ${APP_PORT:8080}
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.jdbc.lob.non_contextual_creation: true
+      hibernate.format_sql: true
+  flyway:
+    enabled: true
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expirationMs: 86400000
+  storage:
+    supabase:
+      url: ${SUPABASE_URL}
+      key: ${SUPABASE_SERVICE_KEY}
+      bucket: ${SUPABASE_BUCKET}
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: INFO
