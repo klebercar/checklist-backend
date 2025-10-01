@@ -1,8 +1,8 @@
--- Converte o ID da tabela para BIGINT
-ALTER TABLE checklist_items
-  ALTER COLUMN id TYPE BIGINT;
+-- adiciona a coluna que a aplicação espera
+ALTER TABLE public.photos
+  ADD COLUMN IF NOT EXISTS s3key TEXT;  -- mude para VARCHAR(255) se preferir
 
--- Se existir FK para checklist_items.id em outra tabela, altere também a coluna FK:
--- Exemplos (ajuste os nomes conforme o seu esquema):
--- ALTER TABLE photos ALTER COLUMN checklist_item_id TYPE BIGINT;
--- ALTER TABLE checklist_items_photos ALTER COLUMN checklist_item_id TYPE BIGINT;
+-- se a sua entidade estiver com @Column(nullable = false),
+-- então torne NOT NULL e dê um default (opcional):
+-- UPDATE public.photos SET s3key = '' WHERE s3key IS NULL;
+-- ALTER TABLE public.photos ALTER COLUMN s3key SET NOT NULL;

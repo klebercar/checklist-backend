@@ -4,7 +4,7 @@ import jakarta.persistence.*; import lombok.*; import java.time.OffsetDateTime;
 public class Photo {
   @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;
   @ManyToOne @JoinColumn(name="checklist_id") private Checklist checklist;
-  private String s3Key;
+  @Column(name = "s3_key", nullable = false) private String s3Key;
   @Column(columnDefinition="text") private String url;
   private OffsetDateTime createdAt=OffsetDateTime.now();
 }
