@@ -14,22 +14,20 @@ spring:
       hibernate.format_sql: true
   flyway:
     enabled: true
-  servlet:
-    multipart:
-      max-file-size: 25MB
-      max-request-size: 25MB  
-
-app:
-  jwt:
-    secret: ${JWT_SECRET}
-    expirationMs: 86400000
-  cors:
-    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:5173}
-logging:
-  level:
-    root: INFO
-    org.springframework.security: INFO
 
 app:
   cors:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:*}
+  jwt:
+    secret: ${JWT_SECRET}
+    expirationMs: 86400000
+  storage:
+    supabase:
+      url: ${SUPABASE_URL}
+      key: ${SUPABASE_SERVICE_KEY}
+      bucket: ${SUPABASE_BUCKET}
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: INFO
