@@ -2,6 +2,9 @@ package com.hotel.checklist.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 
 import java.time.OffsetDateTime;
 
@@ -13,7 +16,8 @@ public class PhotoFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+ 
+    @Column(name = "checklist_id", nullable = false)
     private Long checklistId;
 
     @Column(nullable = false)
@@ -25,11 +29,14 @@ public class PhotoFile {
     @Column(nullable = false)
     private long sizeBytes;
 
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    @Column(nullable = false)
-    private byte[] data;
-
     @Column(nullable = false, updatable = false)
     private OffsetDateTime createdAt;
+
+    // MAPEAR EXPLICITAMENTE COMO BYTEA
+    @JdbcTypeCode(SqlTypes.VARBINARY)
+    @Column(name = "data", nullable = false, columnDefinition = "bytea")
+    private byte[] data;
+
+
+
 }
