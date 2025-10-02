@@ -1,31 +1,59 @@
 package com.hotel.checklist.service;
-import org.springframework.beans.factory.annotation.Value; import org.springframework.stereotype.Service; import java.net.*; import java.net.http.*; import java.util.*; import com.fasterxml.jackson.databind.*;
+
+import com.hotel.checklist.entity.PhotoFile;
+import com.hotel.checklist.repository.PhotoFileRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.util.Optional;
+
 @Service
+@RequiredArgsConstructor
 public class StorageService {
-  @Value("${app.storage.supabase.url}") String supabaseUrl;
-  @Value("${app.storage.supabase.key}") String serviceKey;
-  @Value("${app.storage.supabase.bucket}") String bucket;
-  private HttpClient http(){ return HttpClient.newHttpClient(); }
-  public Uploaded store(byte[] bytes, String originalName){
-    try{
-      String key="photos/"+UUID.randomUUID()+"-"+originalName.replaceAll("\\s+","_");
-      var req=HttpRequest.newBuilder().uri(URI.create(supabaseUrl+"/storage/v1/object/"+bucket+"/"+key))
-        .header("Authorization","Bearer "+serviceKey).header("Content-Type","application/octet-stream")
-        .PUT(HttpRequest.BodyPublishers.ofByteArray(bytes)).build();
-      var resp=http().send(req,HttpResponse.BodyHandlers.ofString());
-      if(resp.statusCode()>=300) throw new RuntimeException("upload falhou: "+resp.statusCode()+" "+resp.body());
-      return new Uploaded(key, sign(key, 7*24*3600));
-    }catch(Exception e){ throw new RuntimeException(e); }
-  }
-  public String sign(String key,int expires) throws Exception{
-    var body="{\"expiresIn\": "+expires+"}";
-    var req=HttpRequest.newBuilder().uri(URI.create(supabaseUrl+"/storage/v1/object/sign/"+bucket+"/"+key))
-      .header("Authorization","Bearer "+serviceKey).header("Content-Type","application/json")
-      .POST(HttpRequest.BodyPublishers.ofString(body)).build();
-    var resp=http().send(req,HttpResponse.BodyHandlers.ofString());
-    if(resp.statusCode()>=300) throw new RuntimeException("sign falhou: "+resp.body());
-    var node=new ObjectMapper().readTree(resp.body());
-    return supabaseUrl+node.get("signedURL").asText();
-  }
-  public record Uploaded(String key,String url){}
+
+    private final PhotoFileRepository repository; // <-- nome padronizado
+
+    @Transactional
+    public Long upload(MultipartFile file, Long checklistId) throws IOException {
+        PhotoFile pf = new PhotoFile();
+        pf.setChecklistId(checklistId);
+        pf.setFilename(Optional.ofNullable(file.getOriginalFilename()).orElse("file"));
+        pf.setContentType(Optional.ofNullable(file.getContentType()).orElse("application/octet-stream"));
+        pf.setSizeBytes(file.getSize());
+        pf.setData(file.getBytes());
+        pf.setCreatedAt(OffsetDateTime.now());
+        repository.save(pf);
+        return pf.getId();
+    }
+
+    @Transactional
+    public String upload(byte[] bytes, String filename, String contentType) {
+        PhotoFile pf = new PhotoFile();
+        pf.setFilename(filename != null ? filename : ("upload-" + System.currentTimeMillis()));
+        pf.setContentType(contentType != null ? contentType : "application/octet-stream");
+        pf.setSizeBytes(bytes.length);
+        pf.setData(bytes);
+        pf.setCreatedAt(OffsetDateTime.now());
+        repository.save(pf);
+        return String.valueOf(pf.getId());
+    }
+
+    @Transactional(readOnly = true)
+    public PhotoFile get(Long id) {
+        return repository.findById(id).orElseThrow();
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        repository.deleteById(id);
+    }
+
+    @Transactional
+    public void delete(String key) {
+        delete(Long.valueOf(key));
+    }
 }

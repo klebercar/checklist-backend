@@ -1,5 +1,5 @@
 package com.hotel.checklist.service;
-import com.hotel.checklist.entity.*; import com.hotel.checklist.repo.*; import lombok.RequiredArgsConstructor; import org.springframework.stereotype.Service; import java.time.OffsetDateTime;
+import com.hotel.checklist.entity.*; import com.hotel.checklist.repository.*; import lombok.RequiredArgsConstructor; import org.springframework.stereotype.Service; import java.time.OffsetDateTime;
 @Service @RequiredArgsConstructor
 public class ChecklistService {
   private final ChecklistRepository checklists; private final TemplateRepository templates; private final UserRepository users; private final ChecklistItemRepository items; private final RoomRepository rooms;

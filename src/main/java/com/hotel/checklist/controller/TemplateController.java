@@ -1,5 +1,5 @@
 package com.hotel.checklist.controller;
-import com.hotel.checklist.entity.*; import com.hotel.checklist.repo.*; import lombok.RequiredArgsConstructor;
+import com.hotel.checklist.entity.*; import com.hotel.checklist.repository.*; import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize; import org.springframework.web.bind.annotation.*; import java.util.*;
 @RestController @RequestMapping("/api/templates") @RequiredArgsConstructor @PreAuthorize("hasRole('ADMIN')")
 public class TemplateController {
